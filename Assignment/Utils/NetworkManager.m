@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "NetworkManager.h"
 
+#define MB * 1024 * 1024
 
 @implementation NetworkManager
 
@@ -41,6 +42,14 @@
     [self.downloadPhotoTask resume];});
 }
 
+//Set a custom cache with higher size
+- (void)setSharedCacheForImages
+{
+    NSUInteger cashSize = 250 MB;
+    NSUInteger cashDiskSize = 250 MB;
+    NSURLCache *imageCache = [[NSURLCache alloc] initWithMemoryCapacity:cashSize diskCapacity:cashDiskSize diskPath:@"someCachePath"];
+    [NSURLCache setSharedURLCache:imageCache];
+}
 
 //Cancel already resumed service
 - (void)cancelDataTask {
