@@ -10,6 +10,7 @@
 #import "JSONParser.h"
 #import "AllAbout.h"
 #import "CountryDetails.h"
+#import "Reachability.h"
 
 @implementation JSONParser
 
@@ -17,14 +18,27 @@
 - (id)fetchAndParseJSON:(NSString*) URL
 {
     NSError *error;
-    NSString *string = [NSString stringWithContentsOfURL:[NSURL URLWithString: URL] encoding:NSISOLatin1StringEncoding error:&error];
-    NSData *resData = [string dataUsingEncoding:NSUTF8StringEncoding];
-    if (resData == NULL)
+    NetworkStatus netStatus = [[Reachability reachabilityForInternetConnection] currentReachabilityStatus];
+
+    if (netStatus == NotReachable)
     {
+        NSLog(@"Network is not reachable");
         AllAbout *countryData = [[AllAbout alloc] init];
         countryData.countryDetails=[[NSMutableArray alloc] init];
         return (countryData);
     }
+    
+    NSString *string = [NSString stringWithContentsOfURL:[NSURL URLWithString: URL] encoding:NSISOLatin1StringEncoding error:&error];
+    NSData *resData = [string dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if (resData == NULL)
+    {
+        NSLog(@"Empty Data received");
+        AllAbout *countryData = [[AllAbout alloc] init];
+        countryData.countryDetails=[[NSMutableArray alloc] init];
+        return (countryData);
+    }
+    
     NSDictionary *jsonObject = (NSDictionary *) [NSJSONSerialization JSONObjectWithData:resData options:kNilOptions error:&error];
     NSMutableArray *rowData = [[NSMutableArray alloc]init];
     AllAbout *countryData = [[AllAbout alloc] init];

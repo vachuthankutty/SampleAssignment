@@ -33,7 +33,6 @@
     self.jsonParser = [[JSONParser alloc] init];
     self.imageHelper = [[NetworkManager alloc] init];
     self.tableViewData = [[AllAbout alloc] init];
-    
     self.tableViewData = [self.jsonParser fetchAndParseJSON:fileJSON];
     self.refreshFlag = NO;
     
@@ -74,6 +73,7 @@
 #pragma mark - Table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
     NSUInteger count = self.tableViewData.countryDetails.count;
     
     if (count == 0)
