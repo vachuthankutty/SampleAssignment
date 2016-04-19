@@ -21,6 +21,7 @@
 @property (nonatomic, strong) AllAbout *tableViewData;
 @property(nonatomic, strong) NetworkManager *imageHelper;
 @property(nonatomic, strong) JSONParser *jsonParser;
+@property(nonatomic) BOOL refreshFlag;
 @end
 
 
@@ -34,6 +35,13 @@
     self.tableViewData = [[AllAbout alloc] init];
     
     self.tableViewData = [self.jsonParser fetchAndParseJSON:fileJSON];
+    self.refreshFlag = NO;
+    
+    // Initialize the refresh control.
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    self.refreshControl.backgroundColor = [UIColor darkGrayColor];
+    self.refreshControl.tintColor = [UIColor blackColor];
+    [self.refreshControl addTarget:self action:@selector(resetRefresh) forControlEvents:UIControlEventValueChanged];
     
 }
 
@@ -42,12 +50,18 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSUInteger count = self.tableViewData.countryDetails.count;
+-(void)resetRefresh
+{
+    //reset the refresh flag so that network call can be made once again
+    self.refreshFlag=NO;
     
-    return count!=0?count:1;
+    for (CountryDetails* row in self.tableViewData.countryDetails)
+        row.itemImage=nil;
+    
+    //Fetch all JSON data again and populate the table view
+    self.tableViewData = [self.jsonParser fetchAndParseJSON:fileJSON];
+    [self reloadData];
 }
-
 
 -(void) reloadData
 {
@@ -58,6 +72,28 @@
 }
 
 #pragma mark - Table view data source
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    NSUInteger count = self.tableViewData.countryDetails.count;
+    
+    if (count == 0)
+    {
+        // Display a message when the table is empty
+        UILabel *noConnectionMessage = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+        
+        noConnectionMessage.text = NSLocalizedString(@"No Data Available. Please check your network.",nil);
+        noConnectionMessage.textColor = [UIColor blackColor];
+        noConnectionMessage.numberOfLines = 0;
+        noConnectionMessage.textAlignment = NSTextAlignmentCenter;
+        noConnectionMessage.font = [UIFont fontWithName:@"HelveticaNeue" size:14.0f];
+        [noConnectionMessage sizeToFit];
+        
+        self.tableView.backgroundView = noConnectionMessage;
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        
+    }
+    return count;
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
