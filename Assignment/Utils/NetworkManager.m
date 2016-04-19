@@ -16,6 +16,7 @@
 - (id)init {
     if (self = [super init]) {
         _downloadPhotoTask = nil;
+       [self setSharedCacheForImages];
     }
     return self;
 }

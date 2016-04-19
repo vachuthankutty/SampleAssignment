@@ -156,7 +156,7 @@
             cell.detailTextLabel.text = (NSString *)row.itemDetail;
         
         //Load Images. Load only once and after that wait till user does a refresh.
-        if (!row.itemImage)
+        if ((!row.itemImage)&&(!self.refreshFlag))
         {
             cell.imageView.image = [UIImage imageNamed:LOADING];
             row.itemImage = [UIImage imageNamed:LOADING];
@@ -177,6 +177,9 @@
         }
     } else NSLog(@"Error retrieving data");
     
+    //Let us not perform refresh unless explicitly required to do so.
+    if (indexPath.row == self.tableViewData.countryDetails.count-1)
+        self.refreshFlag=YES;
     
     //Do not give any selection style
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
